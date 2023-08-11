@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "381473739755",
+    "project_id": "fir-pdfupload-48b14",
+    "storage_bucket": "fir-pdfupload-48b14.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:381473739755:android:09d17e186071aed2b77fae",
+        "android_client_info": {
+          "package_name": "com.example.firebasepdfupload"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "381473739755-1vbasdn8umihfchkr3hsioqj6mhscmoi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBDN81PqrkAR4mBBniw_uVweQXjuBYmQ6s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "381473739755-1vbasdn8umihfchkr3hsioqj6mhscmoi.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
