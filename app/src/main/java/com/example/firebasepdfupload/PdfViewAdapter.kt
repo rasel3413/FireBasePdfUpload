@@ -19,26 +19,30 @@ RecyclerView.Adapter<PdfViewAdapter.ViewHolder>()
         return ViewHolder(view)
     }
     interface  setOnclick{
-        fun onCLick(string: String,button: FloatingActionButton,btn2:ProgressBar)
+        fun onCLick(string: String, button: FloatingActionButton, btn2:ProgressBar):Boolean
         fun openPdf(fielPath:String)
     }
 
     override fun onBindViewHolder(holder: PdfViewAdapter.ViewHolder, position: Int) {
-      val pdfFile=pdfFiles[position]
-        holder.tv.text=pdfFile.name
+        val pdfFile = pdfFiles[position]
+        holder.tv.text = pdfFile.name
 
-        holder.tv.setOnClickListener {
-            val externalDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-            val filePath = File(externalDir, "${pdfFile.name}").absolutePath
+        if (pdfFile.downloaded) {
+            holder.btn.visibility = View.GONE
+            holder.tv.setOnClickListener {
+                val externalDir =
+                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                val filePath = File(externalDir, "${pdfFile.name}").absolutePath
 
-            listener.openPdf(filePath)
-        }
-        if(pdfFile.downloaded){
-            holder.btn.visibility=View.GONE
-        }
-        else {
+                listener.openPdf(filePath)
+            }
+        } else {
             holder.btn.setOnClickListener {
-                listener.onCLick(pdfFile.name, holder.btn, holder.btn2)
+                val updated = listener.onCLick(pdfFile.name, holder.btn, holder.btn2)
+                if (updated) {
+                    pdfFile.downloaded = true
+                    notifyDataSetChanged() // Notify the adapter to update the UI
+                }
             }
         }
     }

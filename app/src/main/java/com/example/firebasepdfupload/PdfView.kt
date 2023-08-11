@@ -25,6 +25,7 @@ import java.io.File
 
 class PdfView : AppCompatActivity(), PdfViewAdapter.setOnclick {
     private lateinit var storageRef: FirebaseStorage
+    private lateinit var pdfAdapter:PdfViewAdapter
     private var pdfFIles = mutableListOf<PdfFile>()
     private val requestPermission =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) {
@@ -58,7 +59,7 @@ class PdfView : AppCompatActivity(), PdfViewAdapter.setOnclick {
                     val recycle = findViewById<RecyclerView>(R.id.mrecyler)
                     recycle.setHasFixedSize(true)
                     recycle.layoutManager = LinearLayoutManager(this)
-                    val pdfAdapter = PdfViewAdapter(pdfFIles,this)
+                     pdfAdapter = PdfViewAdapter(pdfFIles,this)
                     recycle.adapter = pdfAdapter
                 }.addOnFailureListener {
                     Toast.makeText(this, "Failed1", Toast.LENGTH_SHORT).show()
@@ -72,28 +73,42 @@ class PdfView : AppCompatActivity(), PdfViewAdapter.setOnclick {
 
     }
 
-    override fun onCLick(string: String,  btn:FloatingActionButton,btn2:ProgressBar) {
-
-
-        btn2.visibility=View.VISIBLE
-        btn.visibility=View.GONE
-        val storage=storageRef.reference.child("pdfs/$string")
+    override fun onCLick(string: String, btn: FloatingActionButton, btn2: ProgressBar): Boolean {
+        btn2.visibility = View.VISIBLE
+        btn.visibility = View.GONE
+        var download: Boolean = false
+        val storage = storageRef.reference.child("pdfs/$string")
         val externalDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
         val tempFile = File(externalDir, "$string")
-        storage.getFile(tempFile).addOnProgressListener {taskSnapshot ->
 
-            val progress = (100.0 * taskSnapshot.bytesTransferred / taskSnapshot.totalByteCount).toInt()
-            btn2.progress = progress
-        }.addOnSuccessListener {
-            Toast.makeText(this, "Successflly Downloaded", Toast.LENGTH_SHORT).show()
-            btn.visibility=View.GONE
-            btn2.visibility=View.GONE
-        }.addOnFailureListener{
-            Toast.makeText(this, "failed to download", Toast.LENGTH_SHORT).show()
-        }
-      
+        storage.getFile(tempFile)
+            .addOnProgressListener { taskSnapshot ->
+                val progress = (100.0 * taskSnapshot.bytesTransferred / taskSnapshot.totalByteCount).toInt()
+                btn2.progress = progress
+            }
+            .addOnSuccessListener {
+                if (tempFile.exists()) {
+                    download = true
+                }
+                Toast.makeText(this, "Successfully Downloaded", Toast.LENGTH_SHORT).show()
+                btn.visibility = View.GONE
+                btn2.visibility = View.GONE
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "Failed to download", Toast.LENGTH_SHORT).show()
+            }
+            .addOnCompleteListener {
+                // Notify the adapter that the download status has changed
+                if (download) {
+                    val pdfFile = pdfFIles.find { it.name == string }
+                    pdfFile?.downloaded = true
+                    pdfAdapter.notifyDataSetChanged() // Update the RecyclerView
+                }
+            }
 
+        return download
     }
+
     override fun openPdf(filePath: String) {
         // Get the file uri from the FileProvider
         val uri = FileProvider.getUriForFile(this, "com.example.firebasepdfupload.fileProvider", File(filePath))
